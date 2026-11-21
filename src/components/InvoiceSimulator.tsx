@@ -166,14 +166,23 @@ export function InvoiceSimulator() {
                     </div>
                   </div>
 
-                  <div className="flex justify-center gap-3">
+                  <div className="flex flex-col gap-3">
+                    <a
+                      href="https://whop.com/dashboard/biz_ggSgnM5xMzcSv3/invoices/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-5 py-2.5 text-xs font-bold text-white transition shadow-sm"
+                    >
+                      <FileCheck2 className="size-3.5" />
+                      <span>View Invoice in Dashboard →</span>
+                    </a>
                     <button
                       type="button"
                       onClick={handleReset}
-                      className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 hover:bg-slate-50 transition shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                      className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 hover:bg-slate-50 transition shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                     >
                       <RefreshCw className="size-3.5" />
-                      <span>Review Another Settlement</span>
+                      <span>Create Another Invoice</span>
                     </button>
                   </div>
                 </div>

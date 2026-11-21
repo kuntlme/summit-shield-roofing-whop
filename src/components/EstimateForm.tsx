@@ -132,13 +132,13 @@ export function EstimateForm({ onSuccess }: EstimateFormProps) {
                 </div>
               </div>
 
-              <div className="mt-8 flex justify-center gap-4">
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <button
                   type="button"
                   onClick={handleReset}
                   className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-xs font-bold text-slate-800 hover:bg-slate-50 transition shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                 >
-                  Submit Another Estimate Request
+                  Submit Another Request
                 </button>
               </div>
             </div>
