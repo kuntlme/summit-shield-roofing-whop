@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Lock, CheckCircle2, ArrowRight, ExternalLink, RefreshCw } from 'lucide-react'
+import { X, Lock, CheckCircle2, ArrowRight, ExternalLink, RefreshCw, Sparkles, ShieldCheck } from 'lucide-react'
 import { WhopElements, Checkout, CheckoutElement } from '@whop/elements-react'
 import { loadWhop } from '@whop/elements'
 import { SITE_CONFIG } from '../config/site'
@@ -11,7 +11,16 @@ interface CheckoutModalProps {
   planId?: string | null
 }
 
+const TEST_PLAN = {
+  id: 'plan_12oePCZapctEH',
+  title: 'Test Sandbox Deposit (Simulation)',
+  price: 0,
+  priceDisplay: '$0.00 (Free Test)',
+  description: 'Zero-deduction sandbox transaction to safely test Whop checkout without charging any money.'
+}
+
 export function CheckoutModal({ isOpen, onClose, planId }: CheckoutModalProps) {
+  const [isTestMode, setIsTestMode] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(
     SITE_CONFIG.plans.find((p) => p.id === planId) || SITE_CONFIG.plans[1]
   )
@@ -31,26 +40,29 @@ export function CheckoutModal({ isOpen, onClose, planId }: CheckoutModalProps) {
   }, [])
 
   useEffect(() => {
-    if (planId) {
+    if (planId && !isTestMode) {
       const match = SITE_CONFIG.plans.find((p) => p.id === planId)
       if (match) setSelectedPlan(match)
     }
-  }, [planId])
+  }, [planId, isTestMode])
 
   useEffect(() => {
     if (isOpen) {
       setCompletedPayment(null)
+      const activePlan = isTestMode ? TEST_PLAN : selectedPlan
       firePixelEvent('deposit_started', {
-        plan_id: selectedPlan.id,
-        plan_title: selectedPlan.title,
-        amount: selectedPlan.price
+        plan_id: activePlan.id,
+        plan_title: activePlan.title,
+        amount: activePlan.price,
+        is_test_mode: isTestMode
       })
     }
-  }, [isOpen, selectedPlan.id])
+  }, [isOpen, selectedPlan.id, isTestMode])
 
   if (!isOpen) return null
 
-  const directCheckoutUrl = `https://whop.com/checkout/${selectedPlan.id}`
+  const activePlan = isTestMode ? TEST_PLAN : selectedPlan
+  const directCheckoutUrl = `https://whop.com/checkout/${activePlan.id}`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
@@ -63,11 +75,18 @@ export function CheckoutModal({ isOpen, onClose, planId }: CheckoutModalProps) {
               <Lock className="size-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                Embedded Secure Checkout
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <span>Whop Payment Elements</span>
+                {isTestMode && (
+                  <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                    Test Mode ($0)
+                  </span>
+                )}
               </h3>
               <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                Powered by Whop Payment Elements · Apple Pay, Cards & 0% Financing
+                {isTestMode
+                  ? 'Sandbox Mode · Zero deduction · Safe for test checkout'
+                  : 'PCI Level 1 Checkout · Apple Pay, Cards & Flexible Financing'}
               </span>
             </div>
           </div>
@@ -82,7 +101,7 @@ export function CheckoutModal({ isOpen, onClose, planId }: CheckoutModalProps) {
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-5 sm:p-6 max-h-[82vh] overflow-y-auto">
 
           {/* Success Screen */}
           {completedPayment ? (
@@ -92,21 +111,23 @@ export function CheckoutModal({ isOpen, onClose, planId }: CheckoutModalProps) {
               </div>
               <div>
                 <h4 className="text-2xl font-black text-slate-900 dark:text-slate-100">
-                  Payment Succeeded!
+                  {isTestMode ? 'Test Checkout Successful!' : 'Payment Succeeded!'}
                 </h4>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Your transaction has been confirmed and stored in your Whop account.
+                  {isTestMode
+                    ? 'Completed via Whop sandbox mode with $0 charged. Verified on Whop.'
+                    : 'Your transaction has been confirmed and stored in your Whop account.'}
                 </p>
               </div>
 
               <div className="max-w-md mx-auto rounded-xl border border-slate-200 bg-slate-50 p-4 text-left font-mono text-xs space-y-2 dark:border-slate-800 dark:bg-slate-950">
                 <div className="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
                   <span className="text-slate-500">Service Plan</span>
-                  <span className="text-slate-900 dark:text-slate-100 font-bold">{selectedPlan.title}</span>
+                  <span className="text-slate-900 dark:text-slate-100 font-bold">{activePlan.title}</span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-                  <span className="text-slate-500">Amount Paid</span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">{selectedPlan.priceDisplay}</span>
+                  <span className="text-slate-500">Amount Charged</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">{activePlan.priceDisplay}</span>
                 </div>
                 {completedPayment.paymentId && (
                   <div className="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
@@ -114,15 +135,9 @@ export function CheckoutModal({ isOpen, onClose, planId }: CheckoutModalProps) {
                     <span className="text-amber-500 font-bold">{completedPayment.paymentId}</span>
                   </div>
                 )}
-                {completedPayment.setupIntentId && (
-                  <div className="flex justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-                    <span className="text-slate-500">Saved Method</span>
-                    <span className="text-emerald-400 font-bold">{completedPayment.setupIntentId}</span>
-                  </div>
-                )}
                 <div className="flex justify-between pt-1">
                   <span className="text-slate-500">Status</span>
-                  <span className="text-emerald-500 font-semibold">Completed</span>
+                  <span className="text-emerald-500 font-semibold">Verified on Whop</span>
                 </div>
               </div>
 
@@ -133,53 +148,88 @@ export function CheckoutModal({ isOpen, onClose, planId }: CheckoutModalProps) {
                   className="flex-1 rounded-xl border border-slate-300 bg-white py-3 text-xs font-bold text-slate-800 hover:bg-slate-50 transition dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                 >
                   <RefreshCw className="inline size-3.5 mr-1" />
-                  Book Another Plan
+                  Test Another
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
                   className="flex-1 rounded-xl bg-amber-500 py-3 text-xs font-bold text-slate-950 hover:bg-amber-400 transition"
                 >
-                  Done
+                  Close
                 </button>
               </div>
             </div>
           ) : (
-            <div className="space-y-5">
-              {/* Plan Switcher Pills */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                  Select Roofing Package
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {SITE_CONFIG.plans.map((p) => (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setSelectedPlan(p)}
-                      className={`rounded-xl border p-2.5 text-left transition ${
-                        selectedPlan.id === p.id
-                          ? 'border-amber-500 bg-amber-50 text-amber-900 shadow-sm dark:bg-slate-950 dark:text-amber-400'
-                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-400 hover:border-slate-700'
-                      }`}
-                    >
-                      <span className="block text-[11px] font-bold line-clamp-1">{p.title}</span>
-                      <span className="block mt-1 text-sm font-black text-slate-900 dark:text-slate-100">
-                        {p.priceDisplay}
-                      </span>
-                    </button>
-                  ))}
+            <div className="space-y-4">
+
+              {/* Mode Toggle Banner: Production vs Test Sandbox */}
+              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-950/60">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="size-4 text-emerald-500" />
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                    Want to test without spending real money?
+                  </span>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setIsTestMode(!isTestMode)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 ${
+                    isTestMode
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200'
+                  }`}
+                >
+                  <Sparkles className="size-3" />
+                  <span>{isTestMode ? '✓ Test Mode ($0 Active)' : 'Switch to Test Mode ($0)'}</span>
+                </button>
               </div>
 
-              {/* Selected Plan Callout Banner */}
-              <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 flex items-center justify-between dark:border-amber-500/20 dark:bg-amber-500/5">
+              {/* If Test Mode is ON, show test banner */}
+              {isTestMode ? (
+                <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3.5 text-xs text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-950/30 dark:text-emerald-300">
+                  <div className="font-bold flex items-center gap-1.5 mb-1">
+                    <span>🧪 Sandbox Test Plan Selected: $0.00 / Zero Deduction</span>
+                  </div>
+                  <p className="text-[11px] text-emerald-700 dark:text-emerald-400 leading-relaxed">
+                    This test plan uses Whop's genuine checkout pipeline with <strong>$0.00 charge</strong>. No money will be deducted from your card or bank account, allowing you to complete and record a successful test checkout for your demo submission!
+                  </p>
+                </div>
+              ) : (
+                /* Plan Switcher Pills */
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    Select Roofing Package
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {SITE_CONFIG.plans.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setSelectedPlan(p)}
+                        className={`rounded-xl border p-2.5 text-left transition ${
+                          selectedPlan.id === p.id
+                            ? 'border-amber-500 bg-amber-50 text-amber-900 shadow-sm dark:bg-slate-950 dark:text-amber-400'
+                            : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <span className="block text-[11px] font-bold line-clamp-1">{p.title}</span>
+                        <span className="block mt-1 text-sm font-black text-slate-900 dark:text-slate-100">
+                          {p.priceDisplay}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Selected Plan Details Callout */}
+              <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3 flex items-center justify-between dark:border-amber-500/20 dark:bg-amber-500/5">
                 <div>
                   <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                    {selectedPlan.title} — {selectedPlan.priceDisplay}
+                    {activePlan.title} — {activePlan.priceDisplay}
                   </div>
                   <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                    {selectedPlan.description}
+                    {activePlan.description}
                   </div>
                 </div>
                 <a
@@ -219,13 +269,14 @@ export function CheckoutModal({ isOpen, onClose, planId }: CheckoutModalProps) {
                     }}
                   >
                     <Checkout
-                      key={selectedPlan.id}
-                      plan={selectedPlan.id}
+                      key={`${activePlan.id}_${isTestMode}`}
+                      plan={activePlan.id}
+                      promoCode={isTestMode ? 'test100' : undefined}
                       onComplete={(payload: any) => {
                         setCompletedPayment(payload)
                         firePixelEvent('deposit_completed', {
-                          plan_id: selectedPlan.id,
-                          amount: selectedPlan.price,
+                          plan_id: activePlan.id,
+                          amount: activePlan.price,
                           payload
                         })
                       }}
