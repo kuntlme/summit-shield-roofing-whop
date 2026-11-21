@@ -1,30 +1,84 @@
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { Navbar } from '../components/Navbar'
+import { Hero } from '../components/Hero'
+import { Services } from '../components/Services'
+import { Workflow } from '../components/Workflow'
+import { PricingPlans } from '../components/PricingPlans'
+import { CheckoutModal } from '../components/CheckoutModal'
+import { EstimateForm } from '../components/EstimateForm'
+import { InvoiceSimulator } from '../components/InvoiceSimulator'
+import { FinancingBanner } from '../components/FinancingBanner'
+import { ReviewsTrust } from '../components/ReviewsTrust'
+import { ServiceArea } from '../components/ServiceArea'
+import { Footer } from '../components/Footer'
 
 export const Route = createFileRoute('/')({ component: Home })
 
-const FONT_FACES = [400, 500, 600, 700]
-  .map(
-    (weight) =>
-      `@font-face{font-family:'Inter Display';font-weight:${weight};font-display:swap;src:url(https://content.whop.com/fonts/inter-display-${{ 400: 'regular', 500: 'medium', 600: 'semi-bold', 700: 'bold' }[weight]}.ttf) format('truetype')}`,
-  )
-  .join('')
-
 function Home() {
+  const [checkoutPlanId, setCheckoutPlanId] = useState<string | null>(null)
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+
+  const handleOpenCheckout = (planId?: string) => {
+    setCheckoutPlanId(planId || 'plan_rrw2g4VrMy12U')
+    setIsCheckoutOpen(true)
+  }
+
+  const handleCloseCheckout = () => {
+    setIsCheckoutOpen(false)
+  }
+
+  const handleOpenEstimate = () => {
+    const el = document.getElementById('estimate')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
-    <main className="min-h-screen bg-[#F0F0F0] text-[#202020]" style={{ fontFamily: "'Inter Display', ui-sans-serif, system-ui, sans-serif" }}>
-      <style>{FONT_FACES}</style>
-      <section className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 py-16 text-center sm:px-10">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-medium shadow-[0_1px_2px_rgba(0,0,0,0.06)] ring-1 ring-black/5">
-          <span className="size-2 rounded-full bg-[#FA4616]" />
-          Built with Whop
-        </span>
-        <h1 className="mt-6 max-w-3xl text-4xl leading-[1.05] font-bold tracking-tight text-balance sm:text-7xl">
-          Your website <span className="text-[#FA4616]">starts here</span>
-        </h1>
-        <p className="mt-5 max-w-xl text-base text-pretty text-[#202020]/60 sm:text-lg">
-          This page is a placeholder. Describe your business to Whop AI and it will design every page for you.
-        </p>
-      </section>
-    </main>
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+      {/* Top Header & Navigation */}
+      <Navbar onOpenEstimate={handleOpenEstimate} onOpenCheckout={handleOpenCheckout} />
+
+      {/* Main Content Sections */}
+      <main className="flex-1">
+        {/* 1. Hero Showcase */}
+        <Hero onOpenEstimate={handleOpenEstimate} onOpenCheckout={handleOpenCheckout} />
+
+        {/* 2. Services Section (Repair, Replacement, Commercial, Inspection) */}
+        <Services onOpenEstimate={handleOpenEstimate} onOpenCheckout={handleOpenCheckout} />
+
+        {/* 3. High-Ticket Roofing Flow (Deposit -> Job -> Final Invoice) */}
+        <Workflow onOpenCheckout={handleOpenCheckout} onOpenEstimate={handleOpenEstimate} />
+
+        {/* 4. Real Plans & Pricing ($149 Inspection, $500 Deposit, $1,250 Flat Rate) */}
+        <PricingPlans onOpenCheckout={handleOpenCheckout} />
+
+        {/* 5. 0% APR & Buy-Now-Pay-Later Financing Callout */}
+        <FinancingBanner />
+
+        {/* 6. Invoices Final Balance Simulator */}
+        <InvoiceSimulator />
+
+        {/* 7. "Request an Estimate" Form */}
+        <EstimateForm />
+
+        {/* 8. Regional Service Area & Zip-Code Checker */}
+        <ServiceArea onOpenEstimate={handleOpenEstimate} />
+
+        {/* 9. Reviews, BBB A+, GAF Master Elite & Warranties */}
+        <ReviewsTrust />
+      </main>
+
+      {/* Footer & License Disclosures */}
+      <Footer />
+
+      {/* Payment Elements Modal (CheckoutElement + ExpressCheckoutElement + BrandingElement) */}
+      <CheckoutModal
+        planId={checkoutPlanId}
+        isOpen={isCheckoutOpen}
+        onClose={handleCloseCheckout}
+      />
+    </div>
   )
 }

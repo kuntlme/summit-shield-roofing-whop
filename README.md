@@ -1,196 +1,76 @@
-Welcome to your new TanStack Start app!
+# Summit Shield Roofing — Production Whop Website Template
 
-# Getting Started
+A production-ready website template engineered for US residential and commercial roofing contractors, built natively on **Whop Websites** and deployed to live Whop hosting.
 
-To run this application:
+- **Live Production URL:** [https://apex-ridge-roofing-us.whop.site](https://apex-ridge-roofing-us.whop.site)
+- **Whop Apps Origin:** [https://4e9yiir24mau3rjtrs36.apps.whop.com](https://4e9yiir24mau3rjtrs36.apps.whop.com)
+- **Whop App ID:** `app_oiHPDFF1EQHGUw`
+- **Whop Business Account:** `biz_ggSgnM5xMzcSv3`
+- **Source Code Archive:** `summit-shield-roofing-whop-template.zip`
+
+---
+
+## 🌟 Whop Features Implemented (Submission Summary)
+
+> **Submission Paragraph:**  
+> This template implements the complete high-ticket roofing lifecycle natively on Whop: deployed as a high-performance server-rendered **Whop Website** (`apex-ridge-roofing-us.whop.site`) running on Cloudflare Workers; three real live plans configured on Whop (`plan_NxUGyP6ePxtiN` for $149 drone inspections, `plan_rrw2g4VrMy12U` for $500 project deposits, and `plan_gb0sZp9xho5MH` for $1,250 emergency flat-rate repairs); embedded **Whop Payment Elements** featuring `ExpressCheckoutElement` (Apple Pay / Google Pay), `PaymentElement` / `CheckoutElement` with automated Klarna and Splitit financing rails, and the mandatory `BrandingElement`; an interactive "Request an Estimate" intake form wired to the **Whop Leads API** (`POST /api/v1/events`); automated **Card-on-File** tokenization via **Whop Setup Intents** at deposit checkout; a Client Milestone Billing portal demonstrating post-job final balance settlement with auto-charge and digital invoice delivery; and client-side custom pixel tracking with `whop.track` firing verifiable `estimate_requested`, `service_viewed`, and `deposit_started` events.
+
+---
+
+## 🏗️ Architecture & Tech Stack
+
+- **Framework:** TanStack Start + Vite 8 + React 19 + TypeScript
+- **Styling:** Tailwind CSS v4 with bespoke `/impeccable` Craft Floor standards (Slate Navy `#0F172A`, Safety Amber `#D97706`, Clean Stone `#F8FAFC`, themed selection, custom scrollbars, and 4.5:1 accessible contrast)
+- **Icons:** `lucide-react`
+- **Payments:** `@whop/elements` & `@whop/elements-react`
+- **Hosting:** Cloudflare Workers via `@cloudflare/vite-plugin` and Whop CLI
+
+---
+
+## 📋 Real Whop Plans Configured
+
+| Plan ID | Service Description | Price | Billing Type | Whop Variant ID |
+|---|---|---|---|---|
+| **Certified Inspection** | 21-Point Drone Thermal & Forensic Report | $149.00 USD | One-Time Assessment | `plan_NxUGyP6ePxtiN` |
+| **Project Deposit** | Locks crew calendar, materials & Setup Intent card-on-file | $500.00 USD | Milestone Deposit | `plan_rrw2g4VrMy12U` |
+| **Flat-Rate Repair** | Emergency Leak Mitigation & Storm Seal Package | $1,250.00 USD | Flat-Rate Service | `plan_gb0sZp9xho5MH` |
+
+---
+
+## 🎯 Custom Whop Pixel Tracking (`whop.track`)
+
+1. `estimate_requested` — Fires when homeowner completes the multi-step estimate intake form, including lead ID, service type, and timestamp.
+2. `service_viewed` — Fires when exploring any roofing discipline (Replacement, Flashing Repair, Commercial Flat TPO, Drone Inspection).
+3. `deposit_started` — Fires whenever a customer initiates checkout on any plan or milestone deposit.
+4. `purchase` — Fires upon successful test checkout with payment ID and setup intent ID.
+5. `invoice_created` — Fires when a final balance invoice is generated via the Whop Invoices API.
+
+---
+
+## 🛠️ Local Development & Deployment
 
 ```bash
+# 1. Install dependencies
 pnpm install
-pnpm dev
-```
 
-# Building For Production
+# 2. Start local development server with Whop runtime bindings
+whop apps dev
 
-To build this application for production:
-
-```bash
+# 3. Type check & build
+pnpm typecheck
 pnpm build
+
+# 4. Deploy live to production
+whop apps deploy
 ```
 
-## Styling
+---
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+## 🔄 Reusable Template Customization
 
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
-
-
-## Deploy to Cloudflare Workers
-
-This project uses the Cloudflare Vite plugin (configured in `vite.config.ts`) and `wrangler.jsonc`:
-
-1. Install Wrangler: `npm install -g wrangler`
-2. Authenticate: `wrangler login`
-3. Deploy: `npx wrangler deploy`
-
-For production env vars, run `wrangler secret put MY_VAR` for each secret listed in `.env.example`. Public (non-secret) vars go in `wrangler.jsonc` under `vars`.
-
-KV, D1, R2, and Durable Object bindings are configured in `wrangler.jsonc` — see https://developers.cloudflare.com/workers/wrangler/configuration/.
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+To repurpose this template for another roofing contractor or home services company, simply edit [src/config/site.ts](file:///home/coderk/Documents/Playground/whop project/src/config/site.ts):
+- `companyName`: Name of the roofing company
+- `phone` & `emergencyPhone`: Phone numbers
+- `serviceCounties`: Service territory
+- `plans`: Replace Whop variant IDs and prices
+- `credentials`: Contractor license and insurance numbers
